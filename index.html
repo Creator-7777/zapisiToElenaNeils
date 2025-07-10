@@ -35,7 +35,8 @@
 	  let blockedDates = [];
 
 	  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRyUiPwhwtRKKE15xnqypf-p5F7F3lNC02JkO8MSVJbIVWLifJxgF8z5eQIGE74wTHEqY2_P7ObtmM8/pub?output=csv") 
-		.then(data => {
+		 .then(res => res.text())
+		  .then(data => {
 			blockedDates = data
 			  .split("\n")
 			  .map(line => line.trim())
