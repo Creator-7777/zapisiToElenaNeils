@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Запись на приём</title>
+  <style>
+    body { font-family: Arial; background: #f3f3f3; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .form-container { background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
+    input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; }
+    button { background: #4CAF50; color: white; font-weight: bold; cursor: pointer; }
+    button:hover { background: #45a049; }
+    h2 { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Запись на приём</h2>
+    <form id="tgForm">
+      <input type="text" name="name" placeholder="Ваше имя" required>
+      <input type="tel" name="phone" placeholder="Телефон" required>
+      <input type="date" name="date" required>
+      <input type="time" name="time" required>
+      <button type="submit">Записаться</button>
+    </form>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const token = '7275709017:AAG_t5UoN1RFy5Y78FL-0mC-wLSE4bXjsTQ'; // ← вставь свой токен
+    const chat_id = '523393020'; // ← вставь свой chat ID
+
+    document.getElementById('tgForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const message = `
+📥 *Новая запись на приём*:
+👤 Имя: ${form.name.value}
+📞 Телефон: ${form.phone.value}
+📅 Дата: ${form.date.value}
+⏰ Время: ${form.time.value}
+      `;
+
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chat_id,
+          text: message,
+          parse_mode: 'Markdown'
+        })
+      })
+      .then(res => res.ok ? document.getElementById('status').textContent = '✅ Заявка отправлена!' : document.getElementById('status').textContent = '❌ Ошибка отправки')
+      .catch(() => document.getElementById('status').textContent = '❌ Ошибка соединения');
+    });
+  </script>
+</body>
+</html>
