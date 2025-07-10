@@ -26,6 +26,9 @@
   </div>
 
   <script>
+window.addEventListener("DOMContentLoaded", function () {
+  // весь JS-код здесь
+  
     const token = '7275709017:AAG_t5UoN1RFy5Y78FL-OmC-wLSE4bXjsTQ';
     const chat_id = '523393020';
 
@@ -79,6 +82,7 @@
       .then(res => res.ok ? document.getElementById('status').textContent = '✅ Заявка отправлена!' : document.getElementById('status').textContent = '❌ Ошибка отправки')
       .catch(() => document.getElementById('status').textContent = '❌ Ошибка соединения');
     });
+});
   </script>
 </body>
 </html>
