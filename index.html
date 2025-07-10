@@ -29,6 +29,31 @@
     const token = '7275709017:AAG_t5UoN1RFy5Y78FL-OmC-wLSE4bXjsTQ';
     const chat_id = '523393020';
 
+    const dateInput = document.getElementById("date");
+    //const blockedDates = ["2025-07-12", "2025-07-14", "2025-07-20"];
+	
+	  let blockedDates = [];
+
+	  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRyUiPwhwtRKKE15xnqypf-p5F7F3lNC02JkO8MSVJbIVWLifJxgF8z5eQIGE74wTHEqY2_P7ObtmM8/pub?output=csv") 
+		.then(data => {
+			blockedDates = data
+			  .split("\n")
+			  .map(line => line.trim())
+			  .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date));
+	  });
+
+
+    dateInput.addEventListener("input", function () {
+      const selectedDate = dateInput.value;
+      if (blockedDates.includes(selectedDate)) {
+        alert("Эта дата уже занята. Выберите другую.");
+        dateInput.value = "";
+      }
+    });
+
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("min", today);
+    
     document.getElementById('tgForm').addEventListener('submit', function(e) {
       e.preventDefault();
 
