@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -18,7 +19,7 @@
     <form id="tgForm">
       <input type="text" name="name" placeholder="Ваше имя" required>
       <input type="tel" name="phone" placeholder="Телефон" required>
-      <input type="date" name="date" required>
+      <input type="date" id="date" name="date" required>
       <input type="time" name="time" required>
       <button type="submit">Записаться</button>
     </form>
@@ -26,63 +27,58 @@
   </div>
 
   <script>
-window.addEventListener("DOMContentLoaded", function () {
-  // весь JS-код здесь
-  
+    window.addEventListener("DOMContentLoaded", function () {
     const token = '7275709017:AAG_t5UoN1RFy5Y78FL-OmC-wLSE4bXjsTQ';
     const chat_id = '523393020';
 
-    const dateInput = document.getElementById("date");
-    //const blockedDates = ["2025-07-12", "2025-07-14", "2025-07-20"];
-	
-	  let blockedDates = [];
+      const dateInput = document.getElementById("date");
+      let blockedDates = [];
 
-	  fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRyUiPwhwtRKKE15xnqypf-p5F7F3lNC02JkO8MSVJbIVWLifJxgF8z5eQIGE74wTHEqY2_P7ObtmM8/pub?output=csv") 
-		 .then(res => res.text())
-		  .then(data => {
-			blockedDates = data
-			  .split("\n")
-			  .map(line => line.trim())
-			  .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date));
-	  });
+      fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRyUiPwhwtRKKE15xnqypf-p5F7F3lNC02JkO8MSVJbIVWLifJxgF8z5eQIGE74wTHEqY2_P7ObtmM8/pub?output=csv")
+        .then(res => res.text())
+        .then(data => {
+          blockedDates = data
+            .split("\n")
+            .map(line => line.trim())
+            .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date));
+        });
 
+      dateInput.addEventListener("input", function () {
+        const selectedDate = dateInput.value;
+        if (blockedDates.includes(selectedDate)) {
+          alert("Эта дата уже занята. Выберите другую.");
+          dateInput.value = "";
+        }
+      });
 
-    dateInput.addEventListener("input", function () {
-      const selectedDate = dateInput.value;
-      if (blockedDates.includes(selectedDate)) {
-        alert("Эта дата уже занята. Выберите другую.");
-        dateInput.value = "";
-      }
-    });
+      const today = new Date().toISOString().split("T")[0];
+      dateInput.setAttribute("min", today);
 
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.setAttribute("min", today);
-    
-    document.getElementById('tgForm').addEventListener('submit', function(e) {
-      e.preventDefault();
+      document.getElementById('tgForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-      const form = e.target;
-      const message = `
+        const form = e.target;
+        const message = `
 📥 *Новая запись на приём*:
 👤 Имя: ${form.name.value}
 📞 Телефон: ${form.phone.value}
 📅 Дата: ${form.date.value}
 ⏰ Время: ${form.time.value}
-      `;
+        `;
 
-      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: chat_id,
-          text: message,
-          parse_mode: 'Markdown'
+        fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chat_id,
+            text: message,
+            parse_mode: 'Markdown'
+          })
         })
-      })
-      .then(res => res.ok ? document.getElementById('status').textContent = '✅ Заявка отправлена!' : document.getElementById('status').textContent = '❌ Ошибка отправки')
-      .catch(() => document.getElementById('status').textContent = '❌ Ошибка соединения');
+        .then(res => res.ok ? document.getElementById('status').textContent = '✅ Заявка отправлена!' : document.getElementById('status').textContent = '❌ Ошибка отправки')
+        .catch(() => document.getElementById('status').textContent = '❌ Ошибка соединения');
+      });
     });
-});
   </script>
 </body>
 </html>
