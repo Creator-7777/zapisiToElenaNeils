@@ -64,7 +64,21 @@
           alert("Эта дата уже занята. Выберите другую.");
           dateInput.value = "";
         }
+        else { updateTimeSlots(selectedDate); }
       });
+
+      function updateTimeSlots(selectedDate) {
+        timeSelect.innerHTML = '<option value="">Выберите время</option>';
+        timeSlots.forEach(slot => {
+          const isTaken = bookedSlots.some(b => b.date === selectedDate && b.time === slot);
+          if (!isTaken) {
+            const option = document.createElement("option");
+            option.value = slot;
+            option.textContent = slot;
+            timeSelect.appendChild(option);
+          }
+        });
+      }
 
       const today = new Date().toISOString().split("T")[0];
       dateInput.setAttribute("min", today);
@@ -79,7 +93,7 @@
 📞 Телефон: ${form.phone.value}
 📅 Дата: ${form.date.value}
 ⏰ Время: ${form.time.value}
-   Услуга: ${form.service.value}
+💇 Услуга: ${form.service.value}
         `;
 
         fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
