@@ -7,7 +7,7 @@
   <style>
     body { font-family: Arial; background: #f3f3f3; display: flex; justify-content: center; align-items: center; height: 100vh; }
     .form-container { background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
-    input, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; }
+    input, select, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; }
     button { background: #4CAF50; color: white; font-weight: bold; cursor: pointer; }
     button:hover { background: #45a049; }
     h2 { text-align: center; }
@@ -20,18 +20,20 @@
       <input type="text" name="name" placeholder="Ваше имя" required>
       <input type="tel" name="phone" placeholder="Телефон" required>
 
-       <select name="service" required>
+      <select name="service" required>
         <option value="">Выберите услугу</option>
-        <option value="Маникюр — 180₪">Маникюр — 180₪</option>
-        <option value="Педикюр — 290₪">Педикюр — 290₪</option>
+        <option value="Стрижка — 100₪">Стрижка — 100₪</option>
+        <option value="Окрашивание — 200₪">Окрашивание — 200₪</option>
+        <option value="Маникюр — 80₪">Маникюр — 80₪</option>
+        <option value="Педикюр — 90₪">Педикюр — 90₪</option>
       </select>
-      
+
       <input type="date" id="date" name="date" required>
-      
-       <select name="time" id="time" required>
+
+      <select name="time" id="time" required>
         <option value="">Выберите время</option>
       </select>
-      
+
       <button type="submit">Записаться</button>
     </form>
     <p id="status"></p>
@@ -39,25 +41,19 @@
 
   <script>
     window.addEventListener("DOMContentLoaded", function () {
-    const token = '7275709017:AAG_t5UoN1RFy5Y78FL-OmC-wLSE4bXjsTQ';
+	const token = '7275709017:AAG_t5UoN1RFy5Y78FL-OmC-wLSE4bXjsTQ';
     const chat_id = '523393020';
+      const appsScriptURL = "https://script.google.com/macros/s/AKfycbyHrDNgxx26e_BjJi2cuqYxzfHw4ZJ2foQR4Ue_G2yenS_HfKtzwD46qlgyIAt8vueP/exec";
 
       const dateInput = document.getElementById("date");
       const timeSelect = document.getElementById("time");
-
-      const timeSlots = [
-        "10:00–12:00",
-        "12:00–14:00",
-        "14:00–16:00",
-        "16:00–18:00"
-      ];
+      const timeSlots = ["10:00–12:00", "12:00–14:00", "14:00–16:00", "16:00–18:00"];
       let bookedSlots = [];
-      let blockedDates = [];
 
       fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRyUiPwhwtRKKE15xnqypf-p5F7F3lNC02JkO8MSVJbIVWLifJxgF8z5eQIGE74wTHEqY2_P7ObtmM8/pub?output=csv")
         .then(res => res.text())
         .then(data => {
-          bookedSlots = data  
+          bookedSlots = data
             .split("\n")
             .map(line => line.trim().split(","))
             .filter(row => row.length === 2)
@@ -66,14 +62,6 @@
 
       dateInput.addEventListener("input", function () {
         const selectedDate = dateInput.value;
-        if (blockedDates.includes(selectedDate)) {
-          alert("Эта дата уже занята. Выберите другую.");
-          dateInput.value = "";
-        }
-        else { updateTimeSlots(selectedDate); }
-      });
-
-      function updateTimeSlots(selectedDate) {
         timeSelect.innerHTML = '<option value="">Выберите время</option>';
         timeSlots.forEach(slot => {
           const isTaken = bookedSlots.some(b => b.date === selectedDate && b.time === slot);
@@ -84,22 +72,22 @@
             timeSelect.appendChild(option);
           }
         });
-      }
+      });
 
       const today = new Date().toISOString().split("T")[0];
       dateInput.setAttribute("min", today);
 
       document.getElementById('tgForm').addEventListener('submit', function(e) {
         e.preventDefault();
-
         const form = e.target;
+
         const message = `
 📥 *Новая запись на приём*:
 👤 Имя: ${form.name.value}
 📞 Телефон: ${form.phone.value}
+💇 Услуга: ${form.service.value}
 📅 Дата: ${form.date.value}
 ⏰ Время: ${form.time.value}
-💇 Услуга: ${form.service.value}
         `;
 
         fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -111,8 +99,23 @@
             parse_mode: 'Markdown'
           })
         })
-        .then(res => res.ok ? document.getElementById('status').textContent = '✅ Заявка отправлена!' : document.getElementById('status').textContent = '❌ Ошибка отправки')
-        .catch(() => document.getElementById('status').textContent = '❌ Ошибка соединения');
+        .then(res => {
+          document.getElementById('status').textContent = res.ok
+            ? '✅ Заявка отправлена!'
+            : '❌ Ошибка отправки в Telegram';
+        });
+
+        fetch(appsScriptURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: form.name.value,
+            phone: form.phone.value,
+            service: form.service.value,
+            date: form.date.value,
+            time: form.time.value
+          })
+        });
       });
     });
   </script>
