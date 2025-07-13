@@ -103,7 +103,7 @@
             : '❌ Ошибка отправки в Telegram';
         });
 
-        fetch(appsScriptURL, {
+        fetch("https://script.google.com/macros/s/AKfycbxewH642YQx6gLW7FRQLC-nktXlM-PpiX5a4HDGMtxz8eiEA8Ql8Itq2hqdyRlU6xk9/exec", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
