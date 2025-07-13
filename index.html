@@ -41,7 +41,7 @@
     window.addEventListener("DOMContentLoaded", function () {
 	const token = '7275709017:AAG_t5UoN1RFy5Y78FL-OmC-wLSE4bXjsTQ';
     const chat_id = '523393020';
-      const appsScriptURL = "https://script.google.com/macros/s/AKfycbxewH642YQx6gLW7FRQLC-nktXlM-PpiX5a4HDGMtxz8eiEA8Ql8Itq2hqdyRlU6xk9/exec";
+      const appsScriptURL = "https://script.google.com/macros/s/AKfycbxP5nzsPwE330PYHXGN2A5IhTNHvunnkeRgliZUL6vwKNJ83BsVEthTiGMfxLJQqJ4/exec";
 
       const dateInput = document.getElementById("date");
       const timeSelect = document.getElementById("time");
@@ -103,7 +103,7 @@
             : '❌ Ошибка отправки в Telegram';
         });
 
-        fetch("https://script.google.com/macros/s/AKfycbxewH642YQx6gLW7FRQLC-nktXlM-PpiX5a4HDGMtxz8eiEA8Ql8Itq2hqdyRlU6xk9/exec", {
+        fetch(appsScriptURL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
