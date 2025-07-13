@@ -54,8 +54,9 @@
         .then(data => {
           blockedDates = data
             .split("\n")
-            .map(line => line.trim())
-            .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date));
+            .map(line => line.trim().split(","))
+            .filter(row => row.length === 2)
+            .map(([date, time]) => ({ date: date.trim(), time: time.trim() }));
         });
 
       dateInput.addEventListener("input", function () {
