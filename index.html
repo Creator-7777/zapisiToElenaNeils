@@ -50,7 +50,7 @@
       const timeSlots = ["10:00–12:00", "12:00–14:00", "14:00–16:00", "16:00–18:00"];
       let bookedSlots = [];
 
-      fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRyUiPwhwtRKKE15xnqypf-p5F7F3lNC02JkO8MSVJbIVWLifJxgF8z5eQIGE74wTHEqY2_P7ObtmM8/pub?output=csv")
+      fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRyUiPwhwtRKKE15xnqypf-p5F7F3lNC02JkO8MSVJbIVWLifJxgF8z5eQIGE74wTHEqY2_P7ObtmM8/pub?gid=1661937156&single=true&output=csv")
         .then(res => res.text())
         .then(data => {
           bookedSlots = data
