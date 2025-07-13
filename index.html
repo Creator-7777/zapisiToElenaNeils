@@ -107,6 +107,9 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+	    name: form.name.value,
+            phone: form.phone.value,
+            service: form.service.value,
             date: form.date.value,
             time: form.time.value
           })
