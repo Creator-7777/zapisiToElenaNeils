@@ -53,7 +53,7 @@
         .then(data => {
           bookedSlots = data
             .split("\n")
-            .map(line => line.trim().split(","))
+            .map(line => line.trim().split(",")).slice(1) 
             .filter(row => row.length === 2)
             .map(([date, time]) => ({ date: date.trim(), time: time.trim() }));
         });
