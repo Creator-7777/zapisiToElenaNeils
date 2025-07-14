@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body { font-family: Arial; background: #f3f3f3; padding: 20px; }
+      .form-container { background: #fff; padding: 30px; border-radius: 10px; max-width: 400px; margin: auto; }
+      input, select, button { width: 100%; margin-top: 10px; padding: 10px; font-size: 16px; }
+      button { background: green; color: white; border: none; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <h2>Запись на приём</h2>
+      <form id="form">
+        <input name="name" placeholder="Имя" required>
+        <input name="phone" placeholder="Телефон" required>
+        <select name="service" required>
+          <option value="">Услуга</option>
+          <option value="Маникюр — 180₪">Маникюр — 180₪</option>
+          <option value="Педикюр — 190₪">Педикюр — 190₪</option>
+        </select>
+        <input name="date" type="date" required>
+        <select name="time" id="time" required>
+          <option value="">Выберите время</option>
+        </select>
+        <button type="submit">Записаться</button>
+      </form>
+      <p id="status"></p>
+    </div>
+
+    <script>
+      const timeSlots = ["10:00–12:00", "12:00–14:00", "14:00–16:00", "16:00–18:00"];
+      const dateInput = document.querySelector('input[name="date"]');
+      const timeSelect = document.getElementById("time");
+
+    dateInput.addEventListener("change", () => {
+      const selectedDate = dateInput.value;
+      timeSelect.innerHTML = '<option value="">Загрузка...</option>';
+
+      google.script.run
+        .withSuccessHandler((bookedTimes) => {
+          timeSelect.innerHTML = '<option value="">Выберите время</option>';
+          timeSlots.forEach(slot => {
+            if (!bookedTimes.includes(slot)) {
+              const option = document.createElement("option");
+              option.value = slot;
+              option.textContent = slot;
+              timeSelect.appendChild(option);
+            }
+          });
+        })
+        .getBookedTimes(selectedDate);
+    });
+
+      document.getElementById("form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const form = e.target;
+        const data = {
+          name: form.name.value,
+          phone: form.phone.value,
+          service: form.service.value,
+          date: form.date.value,
+          time: form.time.value
+        };
+        google.script.run
+          .withSuccessHandler(() => {
+            document.getElementById("status").textContent = "✅ Заявка отправлена!";
+            form.reset();
+          })
+          .withFailureHandler((e) => {
+            document.getElementById("status").textContent = "❌ Ошибка: " + e.message;
+          })
+          .submitForm(data);
+      });
+    </script>
+  </body>
+</html>
