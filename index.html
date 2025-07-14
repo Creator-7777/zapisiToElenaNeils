@@ -103,17 +103,30 @@
             : '❌ Ошибка отправки в Telegram';
         });
 
-        fetch(appsScriptURL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
+	fetch(appsScriptURL, {
+	  method: "POST",
+	  headers: {
+	    "Content-Type": "application/json"
+	  },
+	  body: JSON.stringify({
 	    name: form.name.value,
-            phone: form.phone.value,
-            service: form.service.value,
-            date: form.date.value,
-            time: form.time.value
-          })
-        });
+	    phone: form.phone.value,
+	    service: form.service.value,
+	    date: form.date.value,
+	    time: form.time.value
+	  })
+	})
+	.then(res => {
+	  if (res.ok) {
+	    console.log("✅ Успешно отправлено в Google Таблицу");
+	  } else {
+	    console.error("❌ Ошибка при отправке в Google Таблицу:", res.status);
+	  }
+	})
+	.catch(err => {
+	  console.error("❌ Сетевая ошибка:", err);
+	});
+
       });
     });
   </script>
