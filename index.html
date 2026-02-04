@@ -1,134 +1,126 @@
 
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8" />
-  <title>Запись на приём</title>
-  <style>
-    body { font-family: Arial; background: #f3f3f3; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    .form-container { background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 400px; width: 100%; }
-    input, select, button { width: 100%; padding: 12px; margin-top: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; }
-    button { background: #4CAF50; color: white; font-weight: bold; cursor: pointer; }
-    button:hover { background: #45a049; }
-    h2 { text-align: center; }
-  </style>
-</head>
-<body>
-  <div class="form-container">
-    <h2>Запись на приём</h2>
-    <form id="tgForm">
-      <input type="text" name="name" placeholder="Ваше имя" required>
-      <input type="tel" name="phone" placeholder="Телефон" required>
-
-      <select name="service" required>
-        <option value="">Выберите услугу</option>
-        <option value="Маникюр — 180₪">Маникюр — 180₪</option>
-        <option value="Педикюр — 190₪">Педикюр — 190₪</option>
-      </select>
-
-      <input type="date" id="date" name="date" required>
-
-      <select name="time" id="time" required>
-        <option value="">Выберите время</option>
-      </select>
-
-      <button type="submit">Записаться</button>
-    </form>
-    <p id="status"></p>
-  </div>
-
-  <script>
-    window.addEventListener("DOMContentLoaded", function () {
-	const token = '7275709017:AAG_t5UoN1RFy5Y78FL-OmC-wLSE4bXjsTQ';
-    const chat_id = '523393020';
-      const appsScriptURL = "https://script.google.com/macros/s/AKfycbx0ZoviuqgKHd-x0k-xmsAqcORNjM5XrtxZoyk5d7CZzLQrU9T3jmoLzNfp4pcdw9n5/exec";
-
-      const dateInput = document.getElementById("date");
-      const timeSelect = document.getElementById("time");
+<html>
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#4CAF50">
+    <title>Запись на приём</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/BxJb8qZ.png">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Raleway', sans-serif;
+        background: url('https://i.imgur.com/XuAzvVI.jpg') no-repeat center center fixed;
+        background-size: cover;
+        margin: 0;
+        padding: 40px 20px;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .form-container {
+        background: rgba(255, 255, 255, 0.96);
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        max-width: 420px;
+        width: 100%;
+        animation: fadeIn 0.6s ease;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .form-container h2 { text-align: center; margin-bottom: 20px; }
+      input, select, button {
+        width: 100%; margin-top: 10px; padding: 12px; font-size: 16px;
+        border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box;
+      }
+      button {
+        background: #4CAF50; color: white; border: none; font-weight: bold;
+        cursor: pointer; transition: background 0.3s ease, transform 0.2s ease;
+      }
+      button:hover {
+        background: #43a047; transform: scale(1.02);
+      }
+      #status {
+        text-align: center; margin-top: 12px; font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <h2>Запись на приём</h2>
+      <form id="form">
+        <input name="name" placeholder="Имя" required>
+        <input name="phone" placeholder="Телефон" required>
+        <select name="service" required>
+          <option value="">Услуга</option>
+          <option value="Маникюр — 180₪">Маникюр — 180₪</option>
+          <option value="Педикюр — 190₪">Педикюр — 190₪</option>
+        </select>
+        <input name="date" type="date" required>
+        <select name="time" id="time" required>
+          <option value="">Выберите время</option>
+        </select>
+        <button type="submit">Записаться</button>
+      </form>
+      <p id="status"></p>
+    </div>
+    <script>
       const timeSlots = ["10:00–12:00", "12:00–14:00", "14:00–16:00", "16:00–18:00"];
-      let bookedSlots = [];
+      const dateInput = document.querySelector('input[name="date"]');
+      const timeSelect = document.getElementById("time");
 
-      fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vRyUiPwhwtRKKE15xnqypf-p5F7F3lNC02JkO8MSVJbIVWLifJxgF8z5eQIGE74wTHEqY2_P7ObtmM8/pub?gid=0&single=true&output=csv")
-        .then(res => res.text())
-        .then(data => {
-          bookedSlots = data
-            .split("\n")
-            .map(line => line.trim().split(",")).slice(1) 
-            .filter(row => row.length === 2)
-            .map(([date, time]) => ({ date: date.trim(), time: time.trim() }));
-        });
-
-      dateInput.addEventListener("input", function () {
+      dateInput.addEventListener("change", () => {
         const selectedDate = dateInput.value;
-        timeSelect.innerHTML = '<option value="">Выберите время</option>';
-        timeSlots.forEach(slot => {
-          const isTaken = bookedSlots.some(b => b.date === selectedDate && b.time === slot);
-          if (!isTaken) {
-            const option = document.createElement("option");
-            option.value = slot;
-            option.textContent = slot;
-            timeSelect.appendChild(option);
-          }
-        });
+        timeSelect.innerHTML = '<option value="">Загрузка...</option>';
+
+        google.script.run.withSuccessHandler((bookedTimes) => {
+          timeSelect.innerHTML = '<option value="">Выберите время</option>';
+          timeSlots.forEach(slot => {
+            if (!bookedTimes.includes(slot)) {
+              const option = document.createElement("option");
+              option.value = slot;
+              option.textContent = slot;
+              timeSelect.appendChild(option);
+            }
+          });
+        }).getBookedTimes(selectedDate);
       });
 
-      const today = new Date().toISOString().split("T")[0];
-      dateInput.setAttribute("min", today);
-
-      document.getElementById('tgForm').addEventListener('submit', function(e) {
+      document.getElementById("form").addEventListener("submit", function(e) {
         e.preventDefault();
         const form = e.target;
-
-        const message = `
-📥 *Новая запись на приём*:
-👤 Имя: ${form.name.value}
-📞 Телефон: ${form.phone.value}
-💇 Услуга: ${form.service.value}
-📅 Дата: ${form.date.value}
-⏰ Время: ${form.time.value}
-        `;
-
-        fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: chat_id,
-            text: message,
-            parse_mode: 'Markdown'
+        const data = {
+          name: form.name.value,
+          phone: form.phone.value,
+          service: form.service.value,
+          date: form.date.value,
+          time: form.time.value
+        };
+        google.script.run
+          .withSuccessHandler(() => {
+            document.getElementById("status").textContent = "✅ Заявка отправлена!";
+            form.reset();
           })
-        })
-        .then(res => {
-          document.getElementById('status').textContent = res.ok
-            ? '✅ Заявка отправлена!'
-            : '❌ Ошибка отправки в Telegram';
-        });
-
-	fetch(appsScriptURL, {
-	  method: "POST",
-	  headers: {
-	    "Content-Type": "application/json"
-	  },
-	  body: JSON.stringify({
-	    name: form.name.value,
-	    phone: form.phone.value,
-	    service: form.service.value,
-	    date: form.date.value,
-	    time: form.time.value
-	  })
-	})
-	.then(res => {
-	  if (res.ok) {
-	    console.log("✅ Успешно отправлено в Google Таблицу");
-	  } else {
-	    console.error("❌ Ошибка при отправке в Google Таблицу:", res.status);
-	  }
-	})
-	.catch(err => {
-	  console.error("❌ Сетевая ошибка:", err);
-	});
-
+          .withFailureHandler((e) => {
+            document.getElementById("status").textContent = "❌ Ошибка: " + e.message;
+          })
+          .submitForm(data);
       });
-    });
-  </script>
-</body>
+
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('service-worker.js')
+            .then(reg => console.log("✅ Service Worker registered"))
+            .catch(err => console.error("❌ Service Worker error:", err));
+        });
+      }
+    </script>
+  </body>
 </html>
